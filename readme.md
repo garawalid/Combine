@@ -124,5 +124,5 @@ $ cd Combine/pipelines && python games_nes.py
 - Create unit test and integration test. An example of unit test is in `tests/layers/consume/test_api_connector.py`
 - Add Travis CI and some DevOps solution.
 - Add docstring to all methods. Example of docstring is in `_normalize_dataframe()` under `/pipelines/nes_games.py` 
-
+- Package the project. This will make deployment faster and easier.
     
