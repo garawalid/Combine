@@ -1,3 +1,10 @@
+import os
+import sys
+
+current_path = os.path.abspath('.')
+parent_path = os.path.dirname(current_path)
+sys.path.append(parent_path)
+
 import json
 import logging
 from datetime import datetime
@@ -124,7 +131,7 @@ class NesGames(Pipeline):
         self._timestamp = int(datetime.now().timestamp())
 
     def run(self):
-        # self._load_data()
+        self._load_data()
         self._preprocess()
         self._process()
         self._postprocess()
@@ -161,6 +168,19 @@ class NesGames(Pipeline):
         self.data.to_csv("../datawarehouse/res/output_{}.csv".format(self._timestamp))
 
     def _normalize_dataframe(self, df):
+        """
+        Normalize the first level of a DataFrame that contains json data.
+
+        Parameters
+        ----------
+        df : Pandas DataFrame
+            The DataFrame to normalize
+
+        Returns
+        -------
+        Pandas DataFrame
+
+        """
         json_struct = json.loads(df[['results']].to_json(orient="records"))
         df_flat = pd.io.json.json_normalize(json_struct)
 
