@@ -22,6 +22,7 @@ class Pipeline:
         pass
 
     def _connect(self):
+        # Fetch data from the source
         pass
 
     def _process(self):
@@ -29,6 +30,7 @@ class Pipeline:
         pass
 
     def _postprocess(self):
+        # Collect metadata about the pipeline
         pass
 
     def _save(self):
