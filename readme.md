@@ -26,39 +26,37 @@ Or, we can count the number of lines of the data we received. All this metadata 
 
 We propose this two types because distributed computation (`Map Reduce framework`)  is slow in the case of small data. You can read more about the topic [here](https://databricks.com/blog/2018/05/03/benchmarking-apache-spark-on-a-single-node-machine.html) and [here](http://dorianbg.blogspot.com/2017/08/spark-vs-pandas-benchmark-why-you.html).
 
-Batch layer contains a set of methods (data transformations) based on some bossiness logic that ready to be used. We propose two type of methods: 
-- useful functions like read, write data from the external sources (`utils_distributed.py` or `utils_inmemory.py`) 
-- generic business functions such as checking if a `client_id` in the database. This methods can be in two modes, the distributed one which is based on [Spark](https://spark.apache.org/), and the in-memory that is based on [Pandas](https://pandas.pydata.org/).
+Batch layer contains a set of methods (data transformations) based on some business logic that ready to be used. We propose two type of methods: 
+- Useful functions like read, write data from the external sources (`utils_distributed.py` or `utils_inmemory.py`) 
+- Generic business functions such as checking if a `client_id` is an old client. This methods can be in two modes, the distributed one which is based on [Spark](https://spark.apache.org/), and the in-memory that is based on [Pandas](https://pandas.pydata.org/).
 
  
 **Streaming layer:** This layer can transform data in real time and forward the result to the serving layer.
 
 
-**Serving layer:** This layer forwards the data to Data Warehouse or any other data store. 
+**Serving layer:** This layer forwards the data to a Data Warehouse or any other data store. 
 ![](doc/src/layers.png)
 
-**Pipeline:** We define a pipeline as container that covers the `consume layer`
-, `batch layer` or `streaming layer` and `serving layer`. 
+**Pipeline:** We define a pipeline as a container that covers the `consume layer`, `batch layer` or `streaming layer` and `serving layer`. 
 
 A pipeline can be either in-memory or distributed. Also, it's custom for each source.
 In fact, each pipeline contains custom transformations for that data. 
 
-We present an abstract pipeline in `pipeline.py`
+We present an abstract model of the pipeline in `pipeline.py`
 
 
 - `run()`: Execute the pipeline.
 - `_connect()`: Fetch data from source and save it in the Data Lake. This method belongs to **consume layer**
-- `_preprocess()`: Run some preprocess tasks like checking the quality of data. This method belongs to **consume layer** as well.
+- `_preprocess()`: Run some preprocessing tasks like checking the quality of data. This method belongs to **consume layer** as well.
 - `_process()`: Contains some data transformations. It belongs to either **batch layer** or **streaming layer**.
 - `_postprocess()`: Collecting some metadata about the pipeline which is useful for debug and monitoring. It belongs to either **batch layer** or **streaming layer**.
 - `_save()`: Forward the result to data storage. This method belongs to **serving layer**
 
-For each pipeline, we need to save a configuration in a database. This configuration can contains credentials to connect to API, sftp ,etc. 
-Also, it can contains configuration of the some framework such as resource allocation is Spark. Moreover, we can keep useful indicator to track 
+For each pipeline, we need to save a configuration in a database. This configuration can hold credentials to connect to API, sftp ,etc. 
+Also, it can contain configuration of the some framework such as resource allocation is Spark. Moreover, we can keep useful indicator to track 
 the last data we fetched from a certain source.
 
 #### Technologies
-This is just a proposition of technologies, but it can be different. 
 
 In **consume layer**, we propose a MongoDB database to save configuration. This useful because we are not limited to a fixed schema and we can change it whenever we want without impacting other pipelines.
 
@@ -70,6 +68,8 @@ Also, we need a **Data Lake** to store data collected by consume layer and to pr
 
 
 ![](doc/src/technologies.png)
+**Note:** This is just a proposition of technologies, but it can be different. 
+
 
 #### Data flow
 We define the data flow as follows: 
@@ -78,7 +78,7 @@ We define the data flow as follows:
 3. In **serving layer**, if the final result still in memory, we forward it to a **Data Warehouse**. Otherwise, we read the final result from HDFS (or S3) and we inject it in the **Data Warehouse**.
 
 ### Example of NES
-Example of `Pipeline` that consume data from Giantbomb API.
+Example of `pipeline` that consumes data from Giantbomb API.
 
 In order to build this ETL, we need to configure a custom `NesConnector` that extends `ApiConnector`
 
@@ -96,7 +96,7 @@ Some assumptions :
 - The folder `datawarehouse` is our Data Warehouse where we supposed to save the data. 
 
 
-After executing the NES pipeline, the result will be inside `\datawarehouse\res\output_temestamp.csv` 
+After executing the NES pipeline, the result will be inside `\datawarehouse\res\output_timestamp.csv` 
  
  
 Run the pipeline as follows :
